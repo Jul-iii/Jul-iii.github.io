@@ -3,253 +3,514 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atlas Global de Residuos Textiles | Proyecto RISE</title>
-    
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
-    
+    <title>Calculadora de Agua en tu Armario</title>
     <style>
-        /* Paleta de Colores */
-        :root {
-            --verde-oscuro: #1b4332;
-            --verde-principal: #2e7d32;
-            --verde-claro: #8bc34a;
-            --fondo-claro: #f1f8e9;
-            --texto-oscuro: #2d3748;
-            --blanco: #ffffff;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-
-        body { 
-            margin: 0; 
-            padding: 0; 
-            font-family: 'Montserrat', sans-serif;
-            background-color: var(--fondo-claro);
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-
-        /* --- Encabezado --- */
-        #header {
-            background: linear-gradient(135deg, var(--verde-oscuro), var(--verde-principal));
-            color: var(--blanco);
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
             align-items: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            z-index: 1000;
+            justify-content: center;
+            padding: 20px;
         }
         
-        .header-titles h1 { 
-            margin: 0; 
-            font-size: 22px; 
-            font-weight: 700;
-            letter-spacing: 1px;
-            color: var(--verde-claro);
-        }
-        
-        .header-titles p { 
-            margin: 4px 0 0 0; 
-            font-size: 13px; 
-            opacity: 0.9; 
-        }
-        
-        .header-logo {
-            font-size: 18px;
-            font-weight: 600;
-            border: 2px solid var(--verde-claro);
-            padding: 5px 15px;
+        .container {
+            background: white;
             border-radius: 20px;
-        }
-
-        /* --- Contenedor del Mapa --- */
-        #map { 
-            flex-grow: 1;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 900px;
             width: 100%;
-            z-index: 1;
-        }
-
-        /* --- Estilos Personalizados de Leaflet --- */
-        .leaflet-popup-content-wrapper {
-            background-color: var(--blanco) !important;
-            color: var(--texto-oscuro) !important;
-            border-radius: 12px !important;
-            padding: 0 !important;
-            overflow: hidden;
-            box-shadow: 0 10px 25px rgba(27, 67, 50, 0.3) !important;
-            border: 2px solid var(--verde-claro);
+            padding: 40px;
         }
         
-        .leaflet-popup-content {
-            margin: 0 !important;
-            width: 300px !important;
+        h1 {
+            text-align: center;
+            color: #003366;
+            margin-bottom: 10px;
+            font-size: 2.2em;
         }
-
-        .leaflet-popup-tip {
-            background-color: var(--verde-claro) !important;
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
         }
-
-        /* --- Contenido del Popup (Tarjetas) --- */
-        .card-container {
+        
+        .intro {
+            background: #e8f4f8;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 5px solid #0066cc;
+        }
+        
+        .intro p {
+            color: #333;
+            line-height: 1.6;
+            font-size: 1.05em;
+        }
+        
+        .clothes-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .item {
+            background: #f9f9f9;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .item:hover {
+            border-color: #0066cc;
+            box-shadow: 0 5px 20px rgba(0, 102, 204, 0.2);
+            transform: translateY(-5px);
+        }
+        
+        .item.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .item-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        
+        .item-name {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+        
+        .item-water {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        .item.selected .item-water {
+            font-weight: bold;
+        }
+        
+        .quantity-selector {
             display: flex;
-            flex-direction: column;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+            align-items: center;
         }
         
-        .card-img {
-            width: 100%;
-            height: 160px;
-            object-fit: cover;
-            border-bottom: 4px solid var(--verde-principal);
+        .quantity-selector input {
+            width: 50px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 1em;
         }
         
-        .card-content {
+        .results-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .result-box {
+            margin-bottom: 20px;
+        }
+        
+        .result-label {
+            font-size: 1.1em;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        
+        .result-value {
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .result-unit {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .comparison {
+            background: white;
+            color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: left;
+        }
+        
+        .comparison h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .comparison-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .comparison-item:last-child {
+            border-bottom: none;
+        }
+        
+        .comparison-icon {
+            font-size: 2em;
+            margin-right: 15px;
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        .comparison-text {
+            flex: 1;
+        }
+        
+        .comparison-text strong {
+            color: #003366;
+            display: block;
+            margin-bottom: 3px;
+        }
+        
+        .solution-section {
+            background: #f0f9f0;
+            border: 2px solid #4caf50;
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 30px;
+        }
+        
+        .solution-section h3 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .solution-text {
+            color: #333;
+            line-height: 1.7;
+        }
+        
+        .savings {
+            background: #ffffcc;
             padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #ff9800;
         }
         
-        .card-content h3 { 
-            margin: 0 0 5px 0; 
-            font-size: 18px; 
-            color: var(--verde-oscuro);
-            font-weight: 700;
+        .savings strong {
+            color: #ff6600;
         }
         
-        .card-content h4 { 
-            margin: 0 0 10px 0; 
-            font-size: 12px; 
-            color: var(--verde-principal); 
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 600;
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 30px;
         }
         
-        .card-content p { 
-            margin: 0; 
-            font-size: 13px; 
-            line-height: 1.5; 
-            color: #4a5568;
+        button {
+            padding: 12px 30px;
+            font-size: 1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
         }
-
-        /* --- Marcador Personalizado (Punto Verde Pulsante) --- */
-        .marker-pin {
-            width: 20px;
-            height: 20px;
-            background-color: var(--verde-claro);
-            border: 3px solid var(--blanco);
-            border-radius: 50%;
-            box-shadow: 0 0 15px rgba(139, 195, 74, 0.8);
-            position: relative;
-            animation: pulse 2s infinite;
+        
+        .btn-reset {
+            background: #ccc;
+            color: #333;
         }
-
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(139, 195, 74, 0.7); }
-            70% { box-shadow: 0 0 0 15px rgba(139, 195, 74, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(139, 195, 74, 0); }
+        
+        .btn-reset:hover {
+            background: #999;
+            color: white;
+        }
+        
+        .btn-share {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-share:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .footer {
+            text-align: center;
+            color: #666;
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+        
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+            font-size: 1.1em;
         }
     </style>
 </head>
 <body>
-
-<div id="header">
-    <div class="header-titles">
-        <h1>ATLAS TEXTIL GLOBAL</h1>
-        <p>Impacto Ambiental: Los Mayores Cementerios de Ropa</p>
-    </div>
-    <div class="header-logo">RISE Project</div>
-</div>
-
-<div id="map"></div>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-
-<script>
-    // 1. Inicializar el mapa
-    const map = L.map('map', {
-        zoomControl: true
-    }).setView([20, 0], 2.5);
-
-    // 2. Capa Visual (Mapa base claro y limpio)
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-        subdomains: 'abcd',
-        maxZoom: 20
-    }).addTo(map);
-
-    // 3. Base de Datos de Ubicaciones (con imágenes funcionales)
-    const cementerios = [
-        {
-            nombre: "Desierto de Atacama",
-            pais: "Alto Hospicio, Chile",
-            coords: [-20.27, -70.03],
-            imagen: "https://images.unsplash.com/photo-1528323273322-d81458248d40?q=80&w=600&auto=format&fit=crop",
-            descripcion: "Saturado por 59,000 toneladas anuales de ropa usada. Las prendas de poliéster tardan 200 años en descomponerse, liberando microplásticos en este frágil ecosistema."
-        },
-        {
-            nombre: "Mercado Kantamanto",
-            pais: "Accra, Ghana",
-            coords: [5.55, -0.21],
-            imagen: "https://images.unsplash.com/photo-1542060748-10c28b62716f?q=80&w=600&auto=format&fit=crop",
-            descripcion: "El mercado de segunda mano más grande de África. El 40% de lo importado se desecha inmediatamente en vertederos que bloquean canales y acaban en el océano."
-        },
-        {
-            nombre: "Vertedero de Dandora",
-            pais: "Nairobi, Kenia",
-            coords: [-1.24, 36.89],
-            imagen: "https://images.unsplash.com/photo-1611288875781-c37ee91f215f?q=80&w=600&auto=format&fit=crop",
-            descripcion: "Recibe hasta 200 toneladas de residuos textiles diarios. La quema accidental de fibras sintéticas libera gases tóxicos que afectan a miles de personas."
-        },
-        {
-            nombre: "Centro de Reciclaje Fallido",
-            pais: "Panipat, India",
-            coords: [29.39, 76.97],
-            imagen: "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?q=80&w=600&auto=format&fit=crop",
-            descripcion: "Conocida como la 'capital del reciclaje', hoy está desbordada porque la calidad de las telas modernas de la moda rápida hace imposible su reutilización."
-        },
-        {
-            nombre: "Punto de Origen (Vertederos)",
-            pais: "Estados Unidos",
-            coords: [39.82, -98.57],
-            imagen: "https://images.unsplash.com/photo-1488459716781-31db52582fe9?q=80&w=600&auto=format&fit=crop",
-            descripcion: "Genera más de 17 millones de toneladas de residuos textiles al año. Solo el 15% se recicla; el resto se entierra o se exporta a países en desarrollo."
-        },
-        {
-            nombre: "Exportación de Residuos",
-            pais: "Reino Unido",
-            coords: [51.50, -0.12],
-            imagen: "https://images.unsplash.com/photo-1520111195338-9533353528b3?q=80&w=600&auto=format&fit=crop",
-            descripcion: "Uno de los mayores exportadores globales. Gran parte de la ropa donada a la 'caridad' termina financiando el colapso ambiental en África."
-        }
-    ];
-
-    // 4. Crear el Icono Personalizado (Punto Verde)
-    const greenPulseIcon = L.divIcon({
-        className: 'custom-div-icon',
-        html: '<div class="marker-pin"></div>',
-        iconSize: [20, 20],
-        iconAnchor: [10, 10],
-        popupAnchor: [0, -10]
-    });
-
-    // 5. Insertar Marcadores y Ventanas Emergentes
-    cementerios.forEach(lugar => {
-        const marker = L.marker(lugar.coords, {icon: greenPulseIcon}).addTo(map);
+    <div class="container">
+        <h1>💧 El Agua en Tu Armario</h1>
+        <p class="subtitle">Descubre cuánta agua contiene tu ropa</p>
         
-        const popupContent = `
-            <div class="card-container">
-                <img src="${lugar.imagen}" alt="${lugar.nombre}" class="card-img">
-                <div class="card-content">
-                    <h3>${lugar.nombre}</h3>
-                    <h4>${lugar.pais}</h4>
-                    <p>${lugar.descripcion}</p>
+        <div class="intro">
+            <p>
+                <strong>¿Sabías que?</strong> Cada prenda de ropa contiene miles de litros de agua. 
+                Una camiseta de algodón requiere <strong>2.700 litros</strong> de agua para producirse 
+                (lo que una persona bebe en 2.5 años). Selecciona la ropa que llevabas puesto hoy 
+                y descubre tu huella hídrica personal.
+            </p>
+        </div>
+        
+        <h2 style="text-align: center; margin-bottom: 20px; color: #333;">¿Qué llevas puesto hoy?</h2>
+        
+        <div class="clothes-section" id="clothesSection"></div>
+        
+        <div class="results-section" id="resultsSection" style="display: none;">
+            <div class="result-box">
+                <div class="result-label">AGUA EN TU ROPA HOY</div>
+                <div class="result-value" id="totalWater">0</div>
+                <div class="result-unit">LITROS</div>
+            </div>
+            
+            <div class="result-box" style="font-size: 0.95em; opacity: 0.9;">
+                <div id="waterDescription"></div>
+            </div>
+            
+            <div class="comparison">
+                <h3>¿A Qué Equivale?</h3>
+                <div class="comparison-item">
+                    <div class="comparison-icon">🚿</div>
+                    <div class="comparison-text">
+                        <strong id="showerDays">0</strong>
+                        duchas promedio de 5 minutos
+                    </div>
+                </div>
+                <div class="comparison-item">
+                    <div class="comparison-icon">🏊</div>
+                    <div class="comparison-text">
+                        <strong id="poolsCount">0</strong>
+                        piscinas olímpicas (1/1000)
+                    </div>
+                </div>
+                <div class="comparison-item">
+                    <div class="comparison-icon">🌊</div>
+                    <div class="comparison-text">
+                        Lo que <strong id="peopleDays">0 personas</strong> beben en 1 día
+                    </div>
+                </div>
+                <div class="comparison-item">
+                    <div class="comparison-icon">📅</div>
+                    <div class="comparison-text">
+                        <strong id="yearConsumption">0</strong>
+                        días de consumo de agua para 1 persona
+                    </div>
                 </div>
             </div>
-        `;
+        </div>
         
-        marker.bindPopup(popupContent);
-    });
-</script>
-
+        <div class="empty-state" id="emptyState">
+            👇 Selecciona prendas para ver tu huella hídrica
+        </div>
+        
+        <div class="solution-section">
+            <h3>🌱 La Solución: Reciclaje Químico</h3>
+            <div class="solution-text">
+                <p>
+                    El reciclaje químico transforma prendas viejas en fibra nueva de calidad virgen, 
+                    sin perder material en el proceso. <strong>Resultado:</strong> se ahorran el 95-99% 
+                    de agua comparado con producción nueva.
+                </p>
+            </div>
+            <div class="savings" id="savingsBox">
+                <strong>Si tu ropa se reciclara químicamente:</strong><br>
+                <span id="savingsText">Selecciona ropa para ver el ahorro</span>
+            </div>
+        </div>
+        
+        <div class="button-group">
+            <button class="btn-reset" onclick="resetCalculator()">🔄 Limpiar</button>
+            <button class="btn-share" onclick="shareResults()">📤 Compartir</button>
+        </div>
+        
+        <div class="footer">
+            <p>Basado en datos de Ellen MacArthur Foundation (2017) y estudios del Oeko-Institut</p>
+            <p style="margin-top: 10px; font-size: 0.85em; color: #999;">
+                Nota: Valores aproximados basados en promedio global
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        // Datos de ropa con agua
+        const clothesData = [
+            { name: 'Camiseta', icon: '👕', water: 2700, type: 'cotton' },
+            { name: 'Jeans', icon: '👖', water: 7500, type: 'mixed' },
+            { name: 'Sudadera', icon: '🏃', water: 5000, type: 'mixed' },
+            { name: 'Calcetines (par)', icon: '🧦', water: 600, type: 'cotton' },
+            { name: 'Zapatos textiles', icon: '👟', water: 1800, type: 'mixed' },
+            { name: 'Abrigo/Chaqueta', icon: '🧥', water: 10000, type: 'wool' },
+            { name: 'Falda/Vestido', icon: '👗', water: 4500, type: 'cotton' },
+            { name: 'Bufanda', icon: '🧣', water: 3500, type: 'wool' },
+            { name: 'Cinturón textil', icon: '👜', water: 800, type: 'cotton' },
+            { name: 'Gorro/Sombrero', icon: '🎩', water: 2000, type: 'wool' },
+        ];
+        
+        // Inicializar
+        let selectedItems = {};
+        
+        function initializeClothes() {
+            const section = document.getElementById('clothesSection');
+            clothesData.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'item';
+                div.innerHTML = `
+                    <div class="item-icon">${item.icon}</div>
+                    <div class="item-name">${item.name}</div>
+                    <div class="item-water">${item.water.toLocaleString()} L</div>
+                    <div class="quantity-selector">
+                        <button onclick="decreaseQuantity(${index})">−</button>
+                        <input type="number" id="qty-${index}" value="0" min="0" onchange="updateResults()" onclick="event.stopPropagation()">
+                        <button onclick="increaseQuantity(${index})">+</button>
+                    </div>
+                `;
+                
+                div.addEventListener('click', () => {
+                    const qty = parseInt(document.getElementById(`qty-${index}`).value) || 0;
+                    document.getElementById(`qty-${index}`).value = qty + 1;
+                    updateResults();
+                });
+                
+                section.appendChild(div);
+            });
+        }
+        
+        function decreaseQuantity(index) {
+            const input = document.getElementById(`qty-${index}`);
+            const value = parseInt(input.value) || 0;
+            if (value > 0) input.value = value - 1;
+            updateResults();
+            event.stopPropagation();
+        }
+        
+        function increaseQuantity(index) {
+            const input = document.getElementById(`qty-${index}`);
+            const value = parseInt(input.value) || 0;
+            input.value = value + 1;
+            updateResults();
+            event.stopPropagation();
+        }
+        
+        function updateResults() {
+            let totalWater = 0;
+            let itemCount = 0;
+            
+            clothesData.forEach((item, index) => {
+                const qty = parseInt(document.getElementById(`qty-${index}`).value) || 0;
+                totalWater += item.water * qty;
+                itemCount += qty;
+            });
+            
+            if (itemCount === 0) {
+                document.getElementById('resultsSection').style.display = 'none';
+                document.getElementById('emptyState').style.display = 'block';
+            } else {
+                document.getElementById('resultsSection').style.display = 'block';
+                document.getElementById('emptyState').style.display = 'none';
+                
+                // Actualizar valores
+                document.getElementById('totalWater').textContent = totalWater.toLocaleString();
+                
+                const description = `Llevas ${itemCount} prendas que contienen ${totalWater.toLocaleString()} litros de agua`;
+                document.getElementById('waterDescription').textContent = description;
+                
+                // Comparaciones
+                const showerLiters = 75; // 5 min × 15 L/min
+                const showers = Math.round(totalWater / showerLiters * 10) / 10;
+                document.getElementById('showerDays').textContent = showers;
+                
+                const poolLiters = 2500000;
+                const pools = (totalWater / poolLiters * 1000).toFixed(1);
+                document.getElementById('poolsCount').textContent = pools;
+                
+                const personLiterDay = 3;
+                const people = Math.round(totalWater / personLiterDay);
+                document.getElementById('peopleDays').textContent = people;
+                
+                const yearConsumption = Math.round(totalWater / personLiterDay / 365);
+                document.getElementById('yearConsumption').textContent = yearConsumption;
+                
+                // Ahorros con reciclaje
+                const waterSaved = Math.round(totalWater * 0.99);
+                const savingsText = `
+                    Se ahorrarían <strong>${waterSaved.toLocaleString()} litros</strong> de agua 
+                    (${(waterSaved / personLiterDay / 30).toFixed(0)} días de agua para 1 persona)
+                `;
+                document.getElementById('savingsText').innerHTML = savingsText;
+            }
+        }
+        
+        function resetCalculator() {
+            clothesData.forEach((_, index) => {
+                document.getElementById(`qty-${index}`).value = 0;
+            });
+            updateResults();
+        }
+        
+        function shareResults() {
+            const totalWater = Array.from(document.querySelectorAll('[id^="qty-"]'))
+                .reduce((sum, input, index) => {
+                    const qty = parseInt(input.value) || 0;
+                    return sum + (clothesData[index].water * qty);
+                }, 0);
+            
+            const text = `Hoy llevo puesto ropa que contiene ${totalWater.toLocaleString()} litros de agua. ¿Y tú? Calcula tu huella hídrica en la calculadora de moda circular.`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'El Agua en Tu Armario',
+                    text: text
+                });
+            } else {
+                alert(text);
+            }
+        }
+        
+        // Iniciar
+        initializeClothes();
+    </script>
 </body>
 </html>
